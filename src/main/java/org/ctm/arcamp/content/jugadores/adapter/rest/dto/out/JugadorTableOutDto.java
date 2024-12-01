@@ -1,25 +1,20 @@
-package org.ctm.arcamp.content.jugadores.domain;
+package org.ctm.arcamp.content.jugadores.adapter.rest.dto.out;
 
-import io.quarkus.arc.All;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.ctm.arcamp.shared.enums.EstiloJuego;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Jugador {
-    private Long id;
+public class JugadorTableOutDto extends JugadorOutDto{
     private String nombre;
     private String apellidos;
     private Boolean diestro;
-    private LocalDate fechaNacimiento;
     private Double porcentajeVictorias;
+    private Integer edad;
     private EstiloJuego estiloJuego;
-    private Long clubId;
 }

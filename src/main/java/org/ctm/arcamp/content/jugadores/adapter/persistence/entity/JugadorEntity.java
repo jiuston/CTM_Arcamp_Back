@@ -11,6 +11,8 @@ import org.ctm.arcamp.content.partidos.adapter.persistence.entity.PartidoEntity;
 import org.ctm.arcamp.content.usuarios.adapter.persistence.entity.UsuarioEntity;
 import org.ctm.arcamp.shared.enums.EstiloJuego;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.Date;
 import java.util.Set;
 
@@ -39,8 +41,7 @@ public class JugadorEntity {
     private Double porcentajeVictorias;
 
     @Column(name = "fecha_nacimiento", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date fechaNacimiento;
+    private LocalDate fechaNacimiento;
 
     @Column(name = "edad", nullable = false) //TODO calculado en la bbdd
     private Integer edad;
@@ -70,4 +71,15 @@ public class JugadorEntity {
 
     @OneToMany(mappedBy = "oponente", fetch = FetchType.LAZY)
     private Set<PartidoEntity> partidosComoOponente;
+
+    @PrePersist
+    @PreUpdate
+    public void prePersist() {
+        if (fechaNacimiento != null) {
+            this.edad = Period.between(fechaNacimiento, LocalDate.now()).getYears();
+        }
+        if (porcentajeVictorias == null) {
+            this.porcentajeVictorias = 0.0;
+        }
+    }
 }
