@@ -15,7 +15,7 @@ public interface JugadorDomainMapper {
 
     JugadorOutDomain toOutDomain(JugadorEntity jugador);
 
-    JugadorEntity toEntity(Jugador jugador);
+    JugadorEntity toEntity(JugadorInDomain domain);
 
     @Mapping(target = "porcentajeVictorias", ignore = true)
     void update(Jugador jugador, @MappingTarget JugadorEntity existingJugador);

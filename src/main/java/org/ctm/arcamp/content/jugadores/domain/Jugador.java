@@ -17,9 +17,6 @@ public class Jugador {
     private Long id;
     private String nombre;
     private String apellidos;
-    private Boolean diestro;
-    private LocalDate fechaNacimiento;
-    private Double porcentajeVictorias;
-    private EstiloJuego estiloJuego;
+
     private Long clubId;
 }

@@ -15,7 +15,6 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class JugadorInDto {
-
     private String nombre;
     private String apellidos;
     private Boolean diestro;

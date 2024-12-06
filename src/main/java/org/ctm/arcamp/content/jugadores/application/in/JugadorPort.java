@@ -3,6 +3,7 @@ package org.ctm.arcamp.content.jugadores.application.in;
 import org.ctm.arcamp.content.jugadores.domain.Jugador;
 import org.ctm.arcamp.content.jugadores.domain.in.JugadorInDomain;
 import org.ctm.arcamp.content.jugadores.domain.out.JugadorOutDomain;
+import org.ctm.arcamp.shared.search.domain.CustomPage;
 import org.ctm.arcamp.shared.search.domain.Filter;
 import org.ctm.arcamp.shared.search.domain.Search;
 import org.hibernate.query.SortDirection;
@@ -18,5 +19,5 @@ public interface JugadorPort {
 
     void delete(Long id);
 
-    List<JugadorOutDomain> search(Search search);
+    CustomPage<JugadorOutDomain> search(Search search);
 }

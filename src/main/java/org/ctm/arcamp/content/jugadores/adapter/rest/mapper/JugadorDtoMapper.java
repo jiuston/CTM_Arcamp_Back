@@ -12,8 +12,8 @@ import org.mapstruct.Mapper;
 public interface JugadorDtoMapper {
 
     default JugadorOutDto toOutDto(Jugador domain){
-        if (domain instanceof JugadorOutDomain){
-            return toTableOutDto((JugadorOutDomain) domain);
+        if (domain instanceof JugadorOutDomain jugador){
+            return toTableOutDto(jugador);
         }
         return null;
     }

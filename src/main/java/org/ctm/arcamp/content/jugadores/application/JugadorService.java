@@ -12,6 +12,7 @@ import org.ctm.arcamp.content.jugadores.domain.in.JugadorInDomain;
 import org.ctm.arcamp.content.jugadores.domain.out.JugadorOutDomain;
 import org.ctm.arcamp.shared.search.adapter.repository.SearchRepository;
 import org.ctm.arcamp.shared.search.application.out.SearchRepositoryPort;
+import org.ctm.arcamp.shared.search.domain.CustomPage;
 import org.ctm.arcamp.shared.search.domain.Filter;
 import org.ctm.arcamp.shared.search.domain.Search;
 import org.hibernate.query.SortDirection;
@@ -38,7 +39,7 @@ public class JugadorService implements JugadorPort {
     @Override
     @Transactional
     public Jugador create(JugadorInDomain inDomain) {
-        return mapper.toDomain(jugadorRepositoryPort.create(mapper.toEntity(inDomain)));
+        return mapper.toOutDomain(jugadorRepositoryPort.create(mapper.toEntity(inDomain)));
     }
 
     @Override
@@ -55,8 +56,8 @@ public class JugadorService implements JugadorPort {
     }
 
     @Override
-    public List<JugadorOutDomain> search(Search search) {
-        List<JugadorEntity> jugadores = searchRepositoryPort.search(search, JugadorEntity.class);
-        return jugadores.stream().map(mapper::toOutDomain).toList();
+    public CustomPage<JugadorOutDomain> search(Search search) {
+        CustomPage<JugadorEntity> jugadores = searchRepositoryPort.search(search, JugadorEntity.class);
+        return new CustomPage<>(jugadores.getContent().stream().map(mapper::toOutDomain).toList(), search.getPage(), search.getSize(), jugadores.getTotalElements(), jugadores.getTotalPages());
     }
 }

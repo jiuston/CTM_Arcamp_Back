@@ -9,6 +9,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.ctm.arcamp.shared.search.application.out.SearchRepositoryPort;
+import org.ctm.arcamp.shared.search.domain.CustomPage;
 import org.ctm.arcamp.shared.search.domain.Filter;
 import org.ctm.arcamp.shared.search.domain.Search;
 import org.hibernate.query.SortDirection;
@@ -17,7 +18,6 @@ import java.util.Date;
 import java.util.List;
 
 import static org.ctm.arcamp.shared.search.domain.LogicalOperator.AND;
-import static org.hibernate.query.SortDirection.ASCENDING;
 import static org.hibernate.query.SortDirection.DESCENDING;
 
 @ApplicationScoped
@@ -26,15 +26,11 @@ public class SearchRepository implements SearchRepositoryPort {
     EntityManager entityManager;
 
     @Override
-    public <T> List<T> search(Search search, Class<T> entityClass) {
+    public <T> CustomPage<T> search(Search search, Class<T> entityClass) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<T> query = cb.createQuery(entityClass);
         Root<T> root = query.from(entityClass);
-        if (search.getFilters()!=null && !search.getFilters().isEmpty()){
-            List<Filter> filters = search.getFilters();
-            Predicate combinedPredicate = buildCombinedPredicate(filters, cb, root);
-            query.where(combinedPredicate);
-        }
+        Predicate predicate = applyFilters(search, cb, root, query);
         SortDirection sortDirection = search.getSortDirection();
         if (sortDirection.equals(DESCENDING))
             query.orderBy(cb.desc(root.get(search.getSortField())));
@@ -43,7 +39,25 @@ public class SearchRepository implements SearchRepositoryPort {
         TypedQuery<T> typedQuery = entityManager.createQuery(query);
         typedQuery.setFirstResult(search.getPage() * search.getSize());
         typedQuery.setMaxResults(search.getSize());
-        return typedQuery.getResultList();
+        List<T> content = typedQuery.getResultList();
+
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+        Root<T> countFrom = countQuery.from(entityClass);
+        countQuery.select(cb.count(countFrom));
+        countQuery.where(predicate);
+        long totalElements = entityManager.createQuery(countQuery).getSingleResult();
+        int totalPages = (int) Math.ceil((double) totalElements / search.getSize());
+        return new CustomPage<>(content, search.getPage(), search.getSize(), totalElements, totalPages);
+    }
+
+    private <T> Predicate applyFilters(Search search, CriteriaBuilder cb, Root<T> root, CriteriaQuery<T> query) {
+        if (search.getFilters()!=null && !search.getFilters().isEmpty()){
+            List<Filter> filters = search.getFilters();
+            Predicate combinedPredicate = buildCombinedPredicate(filters, cb, root);
+            query.where(combinedPredicate);
+            return combinedPredicate;
+        }
+        return cb.conjunction();
     }
 
     private Predicate buildCombinedPredicate(List<Filter> filters, CriteriaBuilder cb, Root<?> root) {
